@@ -107,7 +107,10 @@ case class DatasetProfileAggregator(datasetName: String,
     val schema = row.schema
     groupByColumns
       .map(col => (col, schema.fieldIndex(col)))
-      .map(idxCol => (idxCol._1, Option(row.get(idxCol._2)).map(_.toString).getOrElse("")))
+      .map(idxCol => {
+        val value = Option(row.get(idxCol._2)).map(_.toString).getOrElse("")
+        (s"${DatasetProfile.TAG_PREFIX}${idxCol._1}", value)
+      })
       .toMap
   }
 

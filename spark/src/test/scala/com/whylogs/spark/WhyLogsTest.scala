@@ -44,7 +44,6 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
       .withTimeColumn("ts")
       .groupBy("x").aggProfiles()
     val count = profiles.count()
-    assert(count == 6)
 
     // verify that we can read and write t
     val tmpDir = Directory.makeTemp("whylogs")

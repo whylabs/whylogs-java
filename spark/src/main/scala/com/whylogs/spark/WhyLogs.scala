@@ -176,7 +176,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
   }
 
 
-  private def uploadRow(logApi: LogApi, orgId: String, modelId: String, row: Row) = {
+  private def uploadRow(logApi: LogApi, orgId: String, modelId: String, row: Row): Unit = {
     import RowHelper._
 
     val timestamp: Long = if (timeColumn != null) {
