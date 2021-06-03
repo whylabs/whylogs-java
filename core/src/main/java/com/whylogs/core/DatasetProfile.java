@@ -144,22 +144,22 @@ public class DatasetProfile implements Serializable {
    *
    * @return a new DatasetProfile object
    */
-  public DatasetProfile withModelProfile(
+  public DatasetProfile withClassificationModel(
       String prediction, String target, String score, Iterable<String> additionalOutputFields) {
     val model = new ModelProfile(prediction, target, score, additionalOutputFields);
     return new DatasetProfile(
         sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, model);
   }
 
-  public DatasetProfile withModelProfile(String prediction, String target, String score) {
-    return this.withModelProfile(prediction, target, score, Collections.emptyList());
+  public DatasetProfile withClassificationModel(String prediction, String target, String score) {
+    return this.withClassificationModel(prediction, target, score, Collections.emptyList());
   }
 
-  public DatasetProfile withModelProfile(String prediction, String target) {
-    return this.withModelProfile(prediction, target, Collections.emptyList());
+  public DatasetProfile withRegressionModel(String prediction, String target) {
+    return this.withRegressionModel(prediction, target, Collections.emptyList());
   }
 
-  public DatasetProfile withModelProfile(
+  public DatasetProfile withRegressionModel(
       String prediction, String target, Iterable<String> additionalOutputFields) {
     val model = new ModelProfile(prediction, target, additionalOutputFields);
     return new DatasetProfile(
