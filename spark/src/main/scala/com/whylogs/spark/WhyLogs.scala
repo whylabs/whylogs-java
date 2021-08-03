@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, StandardOpenOption}
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -202,13 +203,13 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       Files.write(tmp, profileData, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
 
       // Create the upload url
+      val req = new LogAsyncRequest()
+      req.setSegmentTags(segmentTags)
+      req.datasetTimestamp(timestamp)
       val uploadResultFuture = RetryUtil.withRetries() {
-        val req = new LogAsyncRequest()
-        req.setSegmentTags(segmentTags)
-        req.datasetTimestamp(timestamp)
         logApi.logAsync(orgId, modelId, req)
       }
-      val uploadResult = Await.result(uploadResultFuture, Duration.create(10, "s"))
+      val uploadResult = Await.result(uploadResultFuture, Duration.create(10, TimeUnit.SECONDS))
 
       // Write the profile to the upload url
       val profileUploadResult = RetryUtil.withRetries() {
