@@ -237,9 +237,14 @@ public class DatasetProfileTest {
     assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.modelProfile, is(notNullValue()));
     assertThat(
-        roundTrip.modelProfile.getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
-    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getTargetField(), is("target"));
-    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getScoreField(), is("score"));
+        roundTrip.modelProfile.getMetrics().getClassificationMetrics().getPredictionField(),
+        is("pred"));
+    assertThat(
+        roundTrip.modelProfile.getMetrics().getClassificationMetrics().getTargetField(),
+        is("target"));
+    assertThat(
+        roundTrip.modelProfile.getMetrics().getClassificationMetrics().getScoreField(),
+        is("score"));
   }
 
   @Test
@@ -373,10 +378,13 @@ public class DatasetProfileTest {
     val roundTrip = DatasetProfile.fromProtobuf(msg);
     assertThat(roundTrip.getModelProfile(), is(notNullValue()));
     assertThat(
-        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
+        roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getPredictionField(),
+        is("pred"));
     assertThat(
-        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getTargetField(), is("target"));
+        roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getTargetField(),
+        is("target"));
     assertThat(
-        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getScoreField(), is("score"));
+        roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getScoreField(),
+        is("score"));
   }
 }

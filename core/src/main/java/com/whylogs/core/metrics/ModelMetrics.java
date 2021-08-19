@@ -12,11 +12,14 @@ import lombok.val;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelMetrics {
   @Getter private final ModelType modelType;
-  @Getter private final ScoreMatrix scoreMatrix;
+  @Getter private final ClassificationMetrics classificationMetrics;
   @Getter private final RegressionMetrics regressionMetrics;
 
   public ModelMetrics(String predictionField, String targetField, String scoreField) {
-    this(ModelType.CLASSIFICATION, new ScoreMatrix(predictionField, targetField, scoreField), null);
+    this(
+        ModelType.CLASSIFICATION,
+        new ClassificationMetrics(predictionField, targetField, scoreField),
+        null);
   }
 
   public ModelMetrics(String predictionField, String targetField) {
@@ -26,7 +29,7 @@ public class ModelMetrics {
   public void track(Map<String, ?> columns) {
     switch (modelType) {
       case CLASSIFICATION:
-        this.scoreMatrix.track(columns);
+        this.classificationMetrics.track(columns);
         break;
       case REGRESSION:
         this.regressionMetrics.track(columns);
@@ -38,8 +41,8 @@ public class ModelMetrics {
 
   public ModelMetricsMessage.Builder toProtobuf() {
     val res = ModelMetricsMessage.newBuilder().setModelType(this.modelType);
-    if (scoreMatrix != null) {
-      res.setScoreMatrix(scoreMatrix.toProtobuf());
+    if (classificationMetrics != null) {
+      res.setScoreMatrix(classificationMetrics.toProtobuf());
     }
     if (regressionMetrics != null) {
       res.setRegressionMetrics(regressionMetrics.toProtobuf());
@@ -60,7 +63,7 @@ public class ModelMetrics {
 
     switch (this.modelType) {
       case CLASSIFICATION:
-        val mergedMatrix = scoreMatrix.merge(other.scoreMatrix);
+        val mergedMatrix = classificationMetrics.merge(other.classificationMetrics);
         return new ModelMetrics(this.modelType, mergedMatrix, null);
       case REGRESSION:
         val mergedRegressionMetrics = regressionMetrics.merge(other.regressionMetrics);
@@ -73,7 +76,7 @@ public class ModelMetrics {
   public ModelMetrics copy() {
     switch (this.modelType) {
       case CLASSIFICATION:
-        return new ModelMetrics(this.modelType, this.scoreMatrix.copy(), null);
+        return new ModelMetrics(this.modelType, this.classificationMetrics.copy(), null);
       case REGRESSION:
         return new ModelMetrics(this.modelType, null, this.regressionMetrics.copy());
       default:
@@ -85,7 +88,7 @@ public class ModelMetrics {
     if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }
-    val scoreMatrix = ScoreMatrix.fromProtobuf(msg.getScoreMatrix());
+    val scoreMatrix = ClassificationMetrics.fromProtobuf(msg.getScoreMatrix());
     val regressionMetrics = RegressionMetrics.fromProtobuf(msg.getRegressionMetrics());
     return new ModelMetrics(msg.getModelType(), scoreMatrix, regressionMetrics);
   }
