@@ -22,7 +22,6 @@ import com.whylogs.core.statistics.NumberTracker;
 import java.util.Arrays;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 import org.apache.datasketches.kll.KllFloatsSketch;
 import org.apache.datasketches.memory.Memory;
 import org.testng.annotations.Test;
@@ -161,16 +160,9 @@ public class SummaryConvertersTest {
     return (float) rand.nextInt((max - min) + 1) + min;
   }
 
-  // Can you believe it - there is no copy or clone method on KllFloatsSketch!!
+  // There is no copy or clone method on KllFloatsSketch!!
   private static KllFloatsSketch clone(KllFloatsSketch sketch) {
     return KllFloatsSketch.heapify(Memory.wrap(sketch.toByteArray()));
-  }
-
-  private static double skewness(HistogramSummary summary) {
-    val s = new Skewness();
-    val n = summary.getN();
-    val values = summary.getCountsList().stream().mapToDouble(v -> ((double) v) / n).toArray();
-    return s.evaluate(values, 0, summary.getCountsList().size());
   }
 
   /**
@@ -211,17 +203,5 @@ public class SummaryConvertersTest {
     assertEquals(nbins, summary_a.getCountsList().size());
     val summary_b = fromUpdateDoublesSketch(sketch_b, splitpoints);
     assertEquals(nbins, summary_b.getCountsList().size());
-
-    // For summary_a we expect the weight of the distribution to the left (tail to the right) on the
-    // unified histogram.
-    // For summary_b, we expect the opposite.
-    // Measure skewness of the histograms.  For a unimodal distribution, negative skew commonly
-    // indicates that the tail is on the left side of the distribution, and positive skew indicates
-    // that the tail is on the right.
-    val skew_a = skewness(summary_a); // typically 1.133
-    assertEquals(1.1, skew_a, 0.04);
-
-    val skew_b = skewness(summary_b); // typically -0.85504
-    assertEquals(-0.8, skew_a, 0.06);
   }
 }
