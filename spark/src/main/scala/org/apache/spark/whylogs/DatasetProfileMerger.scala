@@ -17,7 +17,11 @@ class DatasetProfileMerger(datasetName: String,
     .withTag("Name", datasetName)
 
   override def reduce(b: DatasetProfile, row: Row): DatasetProfile = {
-    val is = new ByteArrayInputStream(row.getAs[Array[Byte]](PROFILE_FIELD));
+    val bytes = row.getAs[Array[Byte]](PROFILE_FIELD)
+    if (bytes == null || bytes.length == 0) {
+      return b
+    }
+    val is = new ByteArrayInputStream(bytes);
     val rhs = DatasetProfile.parse(is)
     b.merge(rhs)
   }
