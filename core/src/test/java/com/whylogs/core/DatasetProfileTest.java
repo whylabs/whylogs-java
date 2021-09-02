@@ -1,24 +1,37 @@
 package com.whylogs.core;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.testng.AssertJUnit.*;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.whylogs.core.message.ModelType;
 import com.whylogs.core.metrics.RegressionMetrics;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
 import org.testng.annotations.Test;
 
-public class DatasetProfileTest {
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+
+public class DatasetProfileTest
+{
   @Test
-  public void merge_EmptyValidDatasetProfiles_EmptyResult() {
+  public void merge_EmptyValidDatasetProfiles_EmptyResult()
+  {
     final Instant now = Instant.now();
     val first = new DatasetProfile("test", now);
     val second = new DatasetProfile("test", now);
@@ -30,7 +43,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void merge_DifferentColumns_ColumnsAreMerged() {
+  public void merge_DifferentColumns_ColumnsAreMerged()
+  {
     final Instant now = Instant.now();
     val first = new DatasetProfile("test", now, ImmutableMap.of("key", "value"));
     first.track("col1", "value");
@@ -52,7 +66,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void merge_SameColumns_ColumnsAreMerged() {
+  public void merge_SameColumns_ColumnsAreMerged()
+  {
     final Instant now = Instant.now();
     val first = new DatasetProfile("test", now);
     first.track("col1", "value1");
@@ -73,7 +88,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void merge_DifferentColumns_WithDataTimestamp_ColumnsAreMerged() {
+  public void merge_DifferentColumns_WithDataTimestamp_ColumnsAreMerged()
+  {
     val now = Instant.now();
     val dataTimestamp = now.truncatedTo(ChronoUnit.DAYS);
     val first =
@@ -102,7 +118,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void merge_ContainsDifferentTagGroups_ShouldRetainCommonTags() {
+  public void merge_ContainsDifferentTagGroups_ShouldRetainCommonTags()
+  {
     val now = Instant.now();
     val first = new DatasetProfile("test", now, ImmutableMap.of("key", "foo", "key2", "foo2"));
     first.withMetadata("m1", "v1").withMetadata("m2", "v2").withMetadata("m0", "v0");
@@ -117,7 +134,8 @@ public class DatasetProfileTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void mergeStrict_MismatchedTags_ThrowsIllegalArgumentException() {
+  public void mergeStrict_MismatchedTags_ThrowsIllegalArgumentException()
+  {
     val now = Instant.now();
     val first = new DatasetProfile("test", now, ImmutableMap.of("key", "foo"));
     val second = new DatasetProfile("test", now, ImmutableMap.of("key", "bar"));
@@ -126,7 +144,8 @@ public class DatasetProfileTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void mergeStrict_MismatchedSessionTime_ThrowsIllegalArgumentException() {
+  public void mergeStrict_MismatchedSessionTime_ThrowsIllegalArgumentException()
+  {
     val now = Instant.now();
     val first = new DatasetProfile("test", now);
     val second = new DatasetProfile("test", now.minusMillis(1));
@@ -135,7 +154,8 @@ public class DatasetProfileTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void mergeStrict_MismatchedDataTime_ThrowsIllegalArgumentException() {
+  public void mergeStrict_MismatchedDataTime_ThrowsIllegalArgumentException()
+  {
     val now = Instant.now();
     val first =
         new DatasetProfile(
@@ -148,7 +168,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void protobuf_RoundTripSerialization_Success() {
+  public void protobuf_RoundTripSerialization_Success()
+  {
     val sessionTime = Instant.now();
     val dataTime = Instant.now().truncatedTo(ChronoUnit.DAYS);
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
@@ -173,7 +194,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void javaSerialization_RoundTripWithDataTime_Success() {
+  public void javaSerialization_RoundTripWithDataTime_Success()
+  {
     val sessionTime = Instant.now();
     val dataTime = Instant.now().truncatedTo(ChronoUnit.DAYS);
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
@@ -195,7 +217,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void javaSerialization_RoundTripWithMissingDataTime_Success() {
+  public void javaSerialization_RoundTripWithMissingDataTime_Success()
+  {
     val sessionTime = Instant.now();
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
     val original = new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap());
@@ -216,7 +239,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void javaSerialization_RoundTripWithModelProfile_Success() {
+  public void javaSerialization_RoundTripWithModelProfile_Success()
+  {
     val sessionTime = Instant.now();
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
     val original =
@@ -248,12 +272,14 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void deserialization_should_succeed() throws IOException {
+  public void deserialization_should_succeed() throws IOException
+  {
     DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
   }
 
   @Test
-  public void deserialization_withRegressionData() throws IOException {
+  public void deserialization_withRegressionData() throws IOException
+  {
     val profile = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     final RegressionMetrics regressionMetrics =
         profile.modelProfile.getMetrics().getRegressionMetrics();
@@ -262,7 +288,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeRecentWithOlderProfile() throws IOException {
+  public void testMergeRecentWithOlderProfile() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     DatasetProfile merged = profile1.merge(profile2);
@@ -274,7 +301,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeRecentWithOlderProfileOppositeDirection() throws IOException {
+  public void testMergeRecentWithOlderProfileOppositeDirection() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     DatasetProfile merged = profile2.merge(profile1);
@@ -284,7 +312,8 @@ public class DatasetProfileTest {
     assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
   }
 
-  private void assertMetrics(RegressionMetrics metrics, int multiplier) {
+  private void assertMetrics(RegressionMetrics metrics, int multiplier)
+  {
     assertThat(metrics.getSumAbsDiff(), closeTo(7649.135452245152 * multiplier, 0.01));
     assertThat(metrics.getSumDiff(), closeTo(522.7580608276942 * multiplier, 0.01));
     assertThat(metrics.getSum2Diff(), closeTo(1021265.7543864828 * multiplier, 0.01));
@@ -294,7 +323,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeTwoNewerProfiles() throws IOException {
+  public void testMergeTwoNewerProfiles() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     DatasetProfile merged = profile1.merge(profile2);
@@ -305,7 +335,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeTwoOlderProfiles() throws IOException {
+  public void testMergeTwoOlderProfiles() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     DatasetProfile merged = profile1.merge(profile2);
@@ -314,7 +345,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeTwoLegacyProfiles() throws IOException {
+  public void testMergeTwoLegacyProfiles() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     DatasetProfile merged = profile1.merge(profile2);
@@ -323,7 +355,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testModelMetricsWithUnknownTypeSpecified() throws IOException {
+  public void testModelMetricsWithUnknownTypeSpecified() throws IOException
+  {
     DatasetProfile profile1 =
         DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
@@ -350,7 +383,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeLegacyProfilesWithModelMetricsProfile() throws IOException {
+  public void testMergeLegacyProfilesWithModelMetricsProfile() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     DatasetProfile merged = profile1.merge(profile2);
@@ -359,7 +393,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void testMergeLegacyProfilesWithModelMetricsProfileOppositeDirection() throws IOException {
+  public void testMergeLegacyProfilesWithModelMetricsProfileOppositeDirection() throws IOException
+  {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     DatasetProfile merged = profile2.merge(profile1);
@@ -368,7 +403,8 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void roundTripWithModelData_should_succeed() {
+  public void roundTripWithModelData_should_succeed()
+  {
     val dp =
         new DatasetProfile("test", Instant.now())
             .withClassificationModel("pred", "target", "score");
@@ -387,4 +423,16 @@ public class DatasetProfileTest {
         roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getScoreField(),
         is("score"));
   }
+
+  @Test
+  public void test_mergeOld_WithNew() throws IOException
+  {
+    // by reading a profile, we basically "convert" it to the new format
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+    DatasetProfile.fromProtobuf(profile1.toProtobuf().build()).merge(profile1);
+
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    DatasetProfile.fromProtobuf(profile2.toProtobuf().build()).merge(profile2);
+  }
+
 }
