@@ -4,12 +4,11 @@ import com.google.common.base.Preconditions;
 import com.whylogs.core.message.ModelMetricsMessage;
 import com.whylogs.core.message.ModelType;
 import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import javax.annotation.Nullable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelMetrics {
@@ -98,11 +97,11 @@ public class ModelMetrics {
     switch (modelType) {
       case CLASSIFICATION:
         if (classificationMetrics != null) {
-          return new ModelMetrics(modelType,  classificationMetrics, null);
+          return new ModelMetrics(modelType, classificationMetrics, null);
         }
       case REGRESSION:
         if (regressionMetrics != null) {
-          return new ModelMetrics(modelType,  null, regressionMetrics);
+          return new ModelMetrics(modelType, null, regressionMetrics);
         }
     }
     return null;

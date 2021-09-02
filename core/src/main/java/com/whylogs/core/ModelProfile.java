@@ -6,14 +6,13 @@ import com.whylogs.core.message.ModelType;
 import com.whylogs.core.metrics.ModelMetrics;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import javax.annotation.Nullable;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

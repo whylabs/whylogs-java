@@ -8,14 +8,13 @@ import com.whylogs.core.statistics.NumberTracker;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import javax.annotation.Nullable;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

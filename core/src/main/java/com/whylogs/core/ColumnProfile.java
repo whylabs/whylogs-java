@@ -19,6 +19,7 @@ import com.whylogs.core.statistics.datatypes.StringTracker;
 import com.whylogs.core.types.TypedData;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,8 +30,6 @@ import org.apache.datasketches.frequencies.ItemsSketch;
 import org.apache.datasketches.hll.HllSketch;
 import org.apache.datasketches.hll.Union;
 import org.apache.datasketches.memory.Memory;
-
-import javax.annotation.Nullable;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
