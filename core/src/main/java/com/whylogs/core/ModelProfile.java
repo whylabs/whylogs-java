@@ -9,12 +9,15 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+@Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelProfile {
   private final Set<String> outputFields;
-  @Getter private final ModelMetrics metrics;
+  @NonNull @Getter private final ModelMetrics metrics;
 
   public ModelProfile(
       String prediction, String target, String score, Iterable<String> additionalOutputFields) {
@@ -32,34 +35,36 @@ public class ModelProfile {
   public ModelProfileMessage.Builder toProtobuf() {
     val builder = ModelProfileMessage.newBuilder();
     builder.addAllOutputFields(outputFields);
-    if (metrics != null) {
-      builder.setMetrics(metrics.toProtobuf());
-    }
+    builder.setMetrics(metrics.toProtobuf());
     return builder;
   }
 
   public static ModelProfile fromProtobuf(ModelProfileMessage message) {
     if (message == null
         || message.getSerializedSize() == 0
-        || (message.getMetrics() != null
-            && message.getMetrics().getModelType() != null
-            && message.getMetrics().getModelType().equals(ModelType.UNKNOWN))) {
+        || message.getMetrics().getModelType().equals(ModelType.UNKNOWN)) {
       return null;
     }
 
     val metrics = ModelMetrics.fromProtobuf(message.getMetrics());
+    if (metrics == null) {
+      return null;
+    }
     val outputFields = Sets.newHashSet(message.getOutputFieldsList());
+    if (outputFields.isEmpty()) {
+      log.warn("Empty output fields. This is not supposed to happen");
+    }
 
     return new ModelProfile(outputFields, metrics);
   }
 
   public ModelProfile merge(ModelProfile other) {
     if (other == null) {
-      ModelMetrics metricsCopy = null;
-      if (metrics != null) {
-        metricsCopy = metrics.copy();
-      }
+      val metricsCopy = metrics.copy();
       return new ModelProfile(Sets.newHashSet(outputFields), metricsCopy);
+    }
+    if (!this.outputFields.equals(other.outputFields)) {
+      log.warn("Output fields don't match. Using the current output fields");
     }
     return new ModelProfile(Sets.newHashSet(outputFields), metrics.merge(other.metrics));
   }
