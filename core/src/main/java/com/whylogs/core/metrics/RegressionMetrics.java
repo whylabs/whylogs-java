@@ -77,7 +77,7 @@ public class RegressionMetrics {
   }
 
   public static RegressionMetrics fromProtobuf(RegressionMetricsMessage msg) {
-    if (msg == null) {
+    if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }
 

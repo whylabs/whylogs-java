@@ -13,6 +13,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import javax.annotation.Nullable;
+
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelProfile {
@@ -39,7 +41,8 @@ public class ModelProfile {
     return builder;
   }
 
-  public static ModelProfile fromProtobuf(ModelProfileMessage message) {
+  @Nullable
+  public static ModelProfile fromProtobuf(@Nullable ModelProfileMessage message) {
     if (message == null
         || message.getSerializedSize() == 0
         || message.getMetrics().getModelType().equals(ModelType.UNKNOWN)) {
@@ -58,11 +61,13 @@ public class ModelProfile {
     return new ModelProfile(outputFields, metrics);
   }
 
-  public ModelProfile merge(ModelProfile other) {
+  @NonNull
+  public ModelProfile merge(@Nullable ModelProfile other) {
     if (other == null) {
       val metricsCopy = metrics.copy();
       return new ModelProfile(Sets.newHashSet(outputFields), metricsCopy);
     }
+
     if (!this.outputFields.equals(other.outputFields)) {
       log.warn("Output fields don't match. Using the current output fields");
     }

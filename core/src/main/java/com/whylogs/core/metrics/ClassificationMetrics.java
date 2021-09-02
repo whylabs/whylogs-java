@@ -15,6 +15,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import javax.annotation.Nullable;
+
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -221,7 +223,8 @@ public class ClassificationMetrics {
     return builder;
   }
 
-  public static ClassificationMetrics fromProtobuf(ScoreMatrixMessage msg) {
+  @Nullable
+  public static ClassificationMetrics fromProtobuf(@Nullable ScoreMatrixMessage msg) {
     if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }

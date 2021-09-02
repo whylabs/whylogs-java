@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import javax.annotation.Nullable;
+
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelMetrics {
   @Getter private final ModelType modelType;
@@ -84,12 +86,25 @@ public class ModelMetrics {
     }
   }
 
-  public static ModelMetrics fromProtobuf(ModelMetricsMessage msg) {
+  @Nullable
+  public static ModelMetrics fromProtobuf(@Nullable ModelMetricsMessage msg) {
     if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }
-    val scoreMatrix = ClassificationMetrics.fromProtobuf(msg.getScoreMatrix());
+    val classificationMetrics = ClassificationMetrics.fromProtobuf(msg.getScoreMatrix());
     val regressionMetrics = RegressionMetrics.fromProtobuf(msg.getRegressionMetrics());
-    return new ModelMetrics(msg.getModelType(), scoreMatrix, regressionMetrics);
+
+    final ModelType modelType = msg.getModelType();
+    switch (modelType) {
+      case CLASSIFICATION:
+        if (classificationMetrics != null) {
+          return new ModelMetrics(modelType,  classificationMetrics, null);
+        }
+      case REGRESSION:
+        if (regressionMetrics != null) {
+          return new ModelMetrics(modelType,  null, regressionMetrics);
+        }
+    }
+    return null;
   }
 }

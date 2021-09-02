@@ -30,6 +30,8 @@ import org.apache.datasketches.hll.HllSketch;
 import org.apache.datasketches.hll.Union;
 import org.apache.datasketches.memory.Memory;
 
+import javax.annotation.Nullable;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder(setterPrefix = "set")
@@ -210,7 +212,11 @@ public class ColumnProfile {
         .setFrequentItems(FrequentStringsSketch.toStringSketch(this.frequentItems));
   }
 
-  public static ColumnProfile fromProtobuf(ColumnMessage message) {
+  @Nullable
+  public static ColumnProfile fromProtobuf(@Nullable ColumnMessage message) {
+    if (message == null || message.getSerializedSize() == 0) {
+      return null;
+    }
 
     val builder =
         ColumnProfile.builder()
