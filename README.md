@@ -1,3 +1,5 @@
+# ARCHIVED: Migrated to [whylogs](https://github.com/whylabs/whylogs/tree/mainline/java) repo
+
 # WhyLogs Java Library
 [![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
 [![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-java-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-java-core)
